@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cut">
-<title>LeafMap</title>
-<meta name="description" content="LeafMap — Busan vegetarian map prototype that checks menu ingredients and sauce labels against the foods you avoid.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LeafMap Dashboard</title>
+<meta name="description" content="리프맵 — 부산 채식 여행자를 위한 메뉴 성분 확인 대시보드 시제품">
 <meta name="theme-color" content="#245c45">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23245c45'/%3E%3Cpath d='M18 46c0-18 12-28 30-28 0 18-10 30-28 30l-2-2z' fill='%23e8f1ea'/%3E%3Cpath d='M20 44 40 26' stroke='%23245c45' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,243 +14,301 @@
 <style>
   :root{
     --green:#245c45; --green-2:#2f7457; --green-soft:#e8f1ea; --green-line:#c9dfd0;
-    --amber:#9a5b06; --amber-soft:#fff3dc; --amber-line:#f1d7a6;
-    --red:#a8322a; --red-soft:#fdecea; --red-line:#f2c4bf;
+    --amber:#9a5b06; --amber-bar:#d99520; --amber-soft:#fff3dc; --amber-line:#f1d7a6;
+    --red:#a8322a; --red-bar:#c9564c; --red-soft:#fdecea; --red-line:#f2c4bf;
     --ink:#1d2a24; --ink-2:#55635c; --ink-3:#8a968f;
-    --bg:#f6f4ee; --card:#ffffff; --line:#e3e6e1; --shadow:0 1px 2px rgba(20,40,30,.06),0 4px 14px rgba(20,40,30,.06);
-    --radius:14px;
+    --bg:#f3f2ec; --card:#ffffff; --line:#e3e6e1; --row:#f8f8f4;
+    --shadow:0 1px 2px rgba(20,40,30,.05),0 3px 10px rgba(20,40,30,.05);
+    --r:14px;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
   button,input,select,textarea{font:inherit;color:inherit}
   button{cursor:pointer}
   a{color:var(--green)}
-  .app{max-width:440px;margin:0 auto;min-height:100vh;min-height:100dvh;background:#fbfaf6;display:flex;flex-direction:column;position:relative}
-  @media (min-width:520px){
-    body{padding:24px 0}
-    .app{min-height:calc(100vh - 48px);border-radius:28px;box-shadow:0 10px 40px rgba(20,40,30,.14);overflow:hidden}
-  }
-  .demo-bar{background:var(--green);color:#e8f1ea;font-size:12px;padding:6px 16px;text-align:center}
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;gap:8px}
-  .brand{display:flex;align-items:center;gap:6px;font-weight:700;font-size:21px;color:var(--green);text-decoration:none;letter-spacing:-.3px}
-  .brand svg{width:20px;height:20px}
-  .back{display:flex;align-items:center;gap:4px;background:none;border:0;padding:6px 4px;font-weight:500;color:var(--ink)}
+  h1,h2,h3{margin:0;letter-spacing:-.3px}
+
+  /* header */
+  .top{position:sticky;top:0;z-index:600;background:#fff;border-bottom:1px solid var(--line)}
+  .top-in{max-width:1480px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:12px 24px}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:20px;color:var(--green)}
+  .brand svg{width:22px;height:22px}
+  .brand small{font-size:12px;font-weight:500;color:var(--ink-3);margin-left:4px}
+  .tabs{display:flex;gap:4px;background:var(--bg);border-radius:12px;padding:4px}
+  .tabs button{border:0;background:none;padding:7px 16px;border-radius:9px;font-weight:500;color:var(--ink-2)}
+  .tabs button[aria-selected="true"]{background:#fff;color:var(--green);font-weight:700;box-shadow:var(--shadow)}
+  .spacer{flex:1}
+  .demo{font-size:12px;color:var(--amber);background:var(--amber-soft);border:1px solid var(--amber-line);border-radius:999px;padding:3px 10px;white-space:nowrap}
   .lang{display:flex;background:var(--green-soft);border-radius:999px;padding:3px}
-  .lang button{border:0;background:none;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:500;color:var(--green)}
+  .lang button{border:0;background:none;padding:4px 11px;border-radius:999px;font-size:13px;font-weight:500;color:var(--green)}
   .lang button[aria-pressed="true"]{background:var(--green);color:#fff}
-  main{flex:1;padding:4px 16px 96px;overflow-x:hidden}
-  h1{font-size:23px;margin:6px 0 4px;letter-spacing:-.4px}
-  h2{font-size:16px;margin:22px 0 8px}
-  .sub{color:var(--ink-2);margin:0 0 14px;font-size:14px}
-  .muted{color:var(--ink-3);font-size:13px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-  /* diet options */
-  .options{display:grid;gap:8px}
-  .opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
-  .opt .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--ink-3);flex:none;margin-top:2px;display:grid;place-items:center}
+
+  main{max-width:1480px;margin:0 auto;padding:20px 24px 40px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+  .pad{padding:16px}
+  .ctitle{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .ctitle small{font-weight:400;color:var(--ink-3);font-size:12px}
+  .muted{color:var(--ink-3);font-size:12.5px}
+
+  /* traveler grid */
+  .tgrid{display:grid;grid-template-columns:270px minmax(0,1fr) 400px;gap:16px;align-items:start}
+  .col{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;min-width:0}
+  .sticky{position:sticky;top:76px;max-height:calc(100vh - 92px);overflow:auto}
+  .opts{display:grid;gap:6px}
+  .opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px}
+  .opt .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink-3);flex:none;margin-top:3px;display:grid;place-items:center}
   .opt[aria-checked="true"]{border-color:var(--green);background:var(--green-soft)}
   .opt[aria-checked="true"] .dot{border-color:var(--green)}
-  .opt[aria-checked="true"] .dot::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--green)}
-  .opt b{display:block;font-weight:700}
-  .opt span{font-size:13px;color:var(--ink-2)}
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{border:1.5px solid var(--green-line);background:#fff;color:var(--green);border-radius:10px;padding:7px 12px;font-weight:500;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+  .opt[aria-checked="true"] .dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--green)}
+  .opt b{display:block;font-size:13.5px}
+  .opt span{font-size:12px;color:var(--ink-2)}
+  .label{font-size:12px;font-weight:700;color:var(--ink-2);margin:14px 0 6px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border:1.5px solid var(--green-line);background:#fff;color:var(--green);border-radius:9px;padding:5px 10px;font-weight:500;font-size:13px}
   .chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
-  .chip[aria-pressed="true"]::before{content:"✓";font-size:12px}
-  .note{border-radius:12px;padding:10px 12px;font-size:13px;margin-top:12px}
+  .chip[aria-pressed="true"]::before{content:"✓ ";font-size:11px}
+  .note{border-radius:10px;padding:8px 10px;font-size:12px;margin-top:8px}
   .note.info{background:var(--green-soft);color:var(--green)}
-  .note.warn{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber-line)}
-  .summary{margin-top:16px;padding:12px 14px}
-  .summary b{font-size:13px;color:var(--ink-2);font-weight:500;display:block;margin-bottom:4px}
-  .btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;border:0;border-radius:12px;padding:14px;font-weight:700;background:var(--green);color:#fff;text-decoration:none;font-size:15px}
-  .btn:active{background:var(--green-2)}
-  .btn.ghost{background:#fff;color:var(--green);border:1.5px solid var(--green)}
-  .btn[disabled]{opacity:.45;cursor:not-allowed}
-  .stack{display:grid;gap:10px;margin-top:18px}
-  /* explore */
-  .search{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-  .search input{border:0;outline:0;flex:1;background:none;min-width:0}
-  .seg{display:flex;gap:6px;margin:10px 0;overflow-x:auto}
-  .seg button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:500}
+  .note.warn{background:var(--amber-soft);color:var(--amber)}
+  .seg{display:flex;gap:4px;flex-wrap:wrap}
+  .seg button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:500}
   .seg button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .filterline{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink-2);margin-bottom:10px}
-  .filterline a{font-weight:500;white-space:nowrap}
-  #map{height:230px;border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;background:#e6ece7;z-index:0}
+  .search{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 11px;flex:1;min-width:200px}
+  .search input{border:0;outline:0;flex:1;background:none;min-width:0}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .sum{display:flex;gap:8px;flex-wrap:wrap}
+  .sumbtn{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px 11px;font-size:13px}
+  .sumbtn b{font-size:15px}
+  .sumbtn[aria-pressed="false"]{opacity:.45}
+  .sumbtn.ok b{color:var(--green)} .sumbtn.check b{color:var(--amber)} .sumbtn.contains b{color:var(--red)}
+  #map{height:330px;border-radius:var(--r);border:1px solid var(--line);overflow:hidden;background:#e6ece7;z-index:0}
   .pin{width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)}
   .pin span{transform:rotate(45deg);color:#fff;font-weight:700;font-size:13px}
-  .pin.ok{background:var(--green)} .pin.check{background:#c98512} .pin.none{background:#9aa39e}
-  .list{display:grid;gap:10px;margin-top:14px}
-  .place{display:flex;gap:12px;padding:12px;text-decoration:none;color:inherit;align-items:center}
-  .thumb{width:58px;height:58px;border-radius:12px;display:grid;place-items:center;font-size:28px;flex:none;background:var(--green-soft)}
-  .place .info{flex:1;min-width:0}
-  .place .name{font-weight:700}
-  .place .meta{font-size:13px;color:var(--ink-2)}
-  .counts{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .pin.ok{background:var(--green)} .pin.check{background:var(--amber-bar)} .pin.none{background:#9aa39e}
+  .pin.sel{outline:3px solid var(--ink)}
+  .placechip{display:inline-flex;gap:6px;align-items:center;background:var(--ink);color:#fff;border:0;border-radius:999px;padding:5px 12px;font-size:12.5px}
+
+  table{width:100%;border-collapse:collapse}
+  th{font-size:12px;color:var(--ink-3);font-weight:500;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  tr.click{cursor:pointer}
+  tr.click:hover td{background:var(--row)}
+  tr.sel td{background:var(--green-soft)}
+  .mname{display:flex;align-items:center;gap:10px;font-weight:500}
+  .emo{width:34px;height:34px;border-radius:9px;background:#f1ece2;display:grid;place-items:center;font-size:18px;flex:none}
   .badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;border-radius:999px;padding:2px 9px;white-space:nowrap}
   .badge.ok{background:var(--green-soft);color:var(--green)}
-  .badge.check{background:var(--amber-soft);color:var(--amber)}
+  .badge.check,.badge.review{background:var(--amber-soft);color:var(--amber)}
   .badge.contains{background:var(--red-soft);color:var(--red)}
-  .chev{color:var(--ink-3);font-size:20px}
-  .empty{text-align:center;padding:28px 16px;color:var(--ink-2)}
-  .empty .big{font-size:34px}
-  /* menu */
-  .menu-row{display:flex;gap:12px;align-items:center;padding:12px;text-decoration:none;color:inherit}
-  .hero{height:170px;border-radius:var(--radius);display:grid;place-items:center;font-size:76px;margin-bottom:14px;position:relative}
-  .hero .save{position:absolute;top:10px;right:10px;background:#fff;border:0;border-radius:10px;width:40px;height:40px;font-size:18px;box-shadow:var(--shadow)}
-  .status{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:12px;margin:12px 0;border:1px solid}
-  .status .ico{font-size:18px;line-height:1.2}
+  .badge.gray{background:#eef0ec;color:var(--ink-2)}
+  .empty{text-align:center;padding:30px 16px;color:var(--ink-2)}
+
+  /* detail panel */
+  .hero{height:120px;border-radius:12px;background:#f1ece2;display:grid;place-items:center;font-size:56px;position:relative;margin-bottom:12px}
+  .save{position:absolute;top:8px;right:8px;background:#fff;border:0;border-radius:9px;width:36px;height:36px;font-size:16px;box-shadow:var(--shadow)}
+  .status{display:flex;gap:10px;align-items:flex-start;border-radius:11px;padding:10px 12px;margin:10px 0;border:1px solid;font-size:13px}
   .status b{display:block}
-  .status span{font-size:13px}
   .status.ok{background:var(--green-soft);border-color:var(--green-line);color:var(--green)}
   .status.check{background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber)}
   .status.contains{background:var(--red-soft);border-color:var(--red-line);color:var(--red)}
-  .comp{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 11px;font-size:13px;background:#eef0ec;border:1px solid transparent}
+  .comp{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 10px;font-size:12.5px;background:#eef0ec;border:1px solid transparent}
   .comp.check{background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber)}
   .comp.contains{background:var(--red-soft);border-color:var(--red-line);color:var(--red)}
-  .group h3{font-size:13px;color:var(--ink-2);margin:14px 0 6px;font-weight:500}
-  /* evidence */
-  .ev{padding:14px;margin-top:12px}
-  .ev-head{display:flex;gap:12px;align-items:center}
-  .bottle{width:52px;height:52px;border-radius:10px;background:var(--green-soft);display:grid;place-items:center;font-size:26px;flex:none}
-  .ev-head b{display:block}
-  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin-top:10px}
+  .grp h4{font-size:12px;color:var(--ink-2);margin:10px 0 5px;font-weight:500}
+  .sect{font-size:13px;font-weight:700;margin:18px 0 4px;padding-top:14px;border-top:1px solid var(--line)}
+  .ev{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+  .ev-head{display:flex;gap:10px;align-items:center}
+  .ev-head b{display:block;font-size:13.5px}
+  .bottle{width:40px;height:40px;border-radius:9px;background:var(--green-soft);display:grid;place-items:center;font-size:20px;flex:none}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:12.5px;margin-top:8px}
   .kv dt{color:var(--ink-3)} .kv dd{margin:0}
-  .label-box{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
-  .label-box div{background:#f4f3ee;border-radius:10px;padding:9px 11px;font-size:13px}
-  .label-box small{display:block;color:var(--ink-3);font-size:11px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;margin-bottom:2px}
-  .found{font-size:13px;border-radius:10px;padding:8px 10px;margin-top:10px}
+  .lbl{background:#f4f3ee;border-radius:9px;padding:7px 10px;font-size:12.5px;margin-top:6px}
+  .lbl small{display:block;color:var(--ink-3);font-size:11px;font-weight:500}
+  .found{font-size:12.5px;border-radius:9px;padding:6px 10px;margin-top:8px}
   .found.ok{background:var(--green-soft);color:var(--green)}
   .found.contains{background:var(--red-soft);color:var(--red)}
   .found.check{background:var(--amber-soft);color:var(--amber)}
-  .rest{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
-  /* tabbar */
-  .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid var(--line);display:flex;padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:500}
-  @media (min-width:520px){.tabbar{position:sticky;transform:none;left:auto;bottom:0}}
-  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--ink-3);text-decoration:none;padding:4px}
-  .tabbar a svg{width:22px;height:22px}
-  .tabbar a.on{color:var(--green);font-weight:700}
-  /* modal */
-  .modal{position:fixed;inset:0;background:rgba(15,25,20,.45);display:none;align-items:flex-end;justify-content:center;z-index:1000}
+  .rest{display:flex;gap:8px;font-size:12.5px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+  .btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;border:0;border-radius:10px;padding:11px;font-weight:700;background:var(--green);color:#fff;font-size:14px}
+  .btn.ghost{background:#fff;color:var(--green);border:1.5px solid var(--green)}
+  .btn.sm{display:inline-flex;width:auto;padding:5px 10px;font-size:12px;border-radius:8px;font-weight:500}
+  .stack{display:grid;gap:8px;margin-top:14px}
+  .placeholder{text-align:center;color:var(--ink-3);padding:60px 20px}
+  .placeholder .big{font-size:40px}
+
+  /* ops */
+  .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+  .kpi{padding:14px 16px}
+  .kpi .k{font-size:12.5px;color:var(--ink-2)}
+  .kpi .v{font-size:28px;font-weight:700;letter-spacing:-.5px;margin-top:2px}
+  .kpi .v small{font-size:14px;color:var(--ink-3);font-weight:500}
+  .kpi.warn .v{color:var(--amber)}
+  .prog{height:6px;border-radius:99px;background:#eef0ec;margin-top:8px;overflow:hidden}
+  .prog i{display:block;height:100%;background:var(--green);border-radius:99px}
+  .ogrid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
+  .full{grid-column:1/-1}
+  .flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .step{background:var(--row);border:1px solid var(--line);border-radius:12px;padding:12px;position:relative}
+  .step .n{font-size:24px;font-weight:700;color:var(--green)}
+  .step .s{font-size:12.5px;color:var(--ink-2)}
+  .step:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--green);font-weight:700}
+  .srow{display:grid;grid-template-columns:110px minmax(0,1fr) 92px;gap:10px;align-items:center;margin:9px 0;font-size:13px}
+  .sbar{display:flex;height:22px;border-radius:7px;overflow:hidden;background:#eef0ec;gap:2px}
+  .sbar i{display:block;height:100%}
+  .sbar .ok{background:var(--green)} .sbar .check{background:var(--amber-bar)} .sbar .contains{background:var(--red-bar)}
+  .legend{display:flex;gap:14px;font-size:12px;color:var(--ink-2);flex-wrap:wrap}
+  .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+  .vbars{display:flex;align-items:flex-end;gap:28px;height:170px;padding:10px 10px 0;border-bottom:1px solid var(--line)}
+  .vb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+  .vb i{display:block;width:60%;max-width:70px;background:var(--green);border-radius:6px 6px 0 0}
+  .vb b{font-size:13px}
+  .vlabels{display:flex;gap:28px;padding:6px 10px 0}
+  .vlabels span{flex:1;text-align:center;font-size:12px;color:var(--ink-2)}
+  .tbl-wrap{overflow-x:auto}
+
+  /* modal + toast */
+  .modal{position:fixed;inset:0;background:rgba(15,25,20,.45);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
   .modal.open{display:flex}
-  .sheet{background:#fff;width:100%;max-width:440px;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
-  .sheet h2{margin-top:0}
-  .ko-req{font-size:19px;line-height:1.65;background:var(--green-soft);color:var(--ink);border-radius:12px;padding:16px;font-weight:500}
-  .field{display:grid;gap:6px;margin-top:12px}
-  .field label{font-size:13px;font-weight:500;color:var(--ink-2)}
-  .field select,.field textarea{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;width:100%}
+  .sheet{background:#fff;width:100%;max-width:520px;border-radius:18px;padding:22px;max-height:88vh;overflow:auto}
+  .sheet h2{font-size:18px;margin-bottom:8px}
+  .ko-req{font-size:20px;line-height:1.7;background:var(--green-soft);border-radius:12px;padding:16px;font-weight:500}
+  .field{display:grid;gap:5px;margin-top:12px}
+  .field label{font-size:12.5px;font-weight:500;color:var(--ink-2)}
+  .field select,.field textarea{border:1px solid var(--line);border-radius:9px;padding:9px;background:#fff;width:100%}
   .field textarea{min-height:90px;resize:vertical}
-  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;z-index:1100;pointer-events:none;max-width:90vw;text-align:center}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:13.5px;opacity:0;transition:.25s;z-index:1100;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .report{padding:12px;font-size:13px}
-  .footer-note{font-size:12px;color:var(--ink-3);margin-top:24px;text-align:center}
+  .foot{text-align:center;font-size:12px;color:var(--ink-3);margin-top:24px}
   :focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+  @media (max-width:1200px){
+    .tgrid{grid-template-columns:250px minmax(0,1fr)}
+    .tgrid .right{grid-column:1/-1}
+    .sticky{position:static;max-height:none}
+    .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  }
+  @media (max-width:820px){
+    .top-in{flex-wrap:wrap;gap:10px;padding:10px 16px}
+    .spacer{display:none}
+    main{padding:16px}
+    .tgrid,.ogrid{grid-template-columns:minmax(0,1fr)}
+    .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .step:not(:last-child)::after{display:none}
+    .srow{grid-template-columns:80px minmax(0,1fr) 80px}
+    .hide-m{display:none}
+  }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="demo-bar" id="demoBar"></div>
-  <header class="topbar" id="topbar"></header>
-  <main id="view" tabindex="-1"></main>
-  <nav class="tabbar" id="tabbar"></nav>
-</div>
+<header class="top"><div class="top-in" id="top"></div></header>
+<main id="main"></main>
 <div class="modal" id="modal" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* =========================================================
-   LeafMap prototype — all restaurants, products and labels
-   below are FICTIONAL demo data for usability testing.
+   LeafMap dashboard prototype
+   식당·제품·성분표는 모두 화면 검증용 가상 데이터입니다.
    ========================================================= */
 
-// ---------- i18n ----------
 const T = {
-  demo:{en:"Demo prototype · restaurants, products and labels are fictional",ko:"시연용 시제품 · 식당·제품·성분표는 모두 가상 데이터입니다"},
-  prefsTitle:{en:"Your food preferences",ko:"식단 설정"},
-  prefsSub:{en:"Tell us what you don't eat so we can find suitable menus in Busan.",ko:"먹지 않는 재료를 알려주면 부산에서 맞는 메뉴를 찾아드려요."},
-  language:{en:"Language",ko:"언어"},
-  dietType:{en:"Diet type",ko:"채식 유형"},
-  exclude:{en:"Exclude these ingredients",ko:"제외할 재료"},
-  excludeSub:{en:"Tap to change. Your own list is what we check against.",ko:"눌러서 바꿀 수 있어요. 아래 목록을 기준으로 메뉴를 확인합니다."},
-  summary:{en:"We'll check menus for:",ko:"이 재료가 들어간 메뉴를 걸러요:"},
-  noneSel:{en:"Nothing selected yet — pick at least one ingredient.",ko:"아직 선택한 재료가 없어요. 하나 이상 골라 주세요."},
-  findFood:{en:"Find food in Busan",ko:"부산에서 식당 찾기"},
+  sub:{en:"Busan vegetarian menu dashboard",ko:"부산 채식 메뉴 확인 대시보드"},
+  tabT:{en:"Traveler",ko:"여행자 탐색"}, tabO:{en:"Operations",ko:"운영 현황"},
+  demo:{en:"Demo data · fictional restaurants",ko:"시연용 가상 데이터"},
+  prefs:{en:"Food preferences",ko:"식단 설정"},
   vegan:{en:"Vegan",ko:"비건"}, veganD:{en:"No animal products",ko:"동물성 식품 모두 제외"},
-  lacto:{en:"Lacto-ovo vegetarian",ko:"락토오보 채식"}, lactoD:{en:"No meat, fish or seafood",ko:"육류·생선·해산물 제외"},
-  pesco:{en:"Pescatarian",ko:"페스코 식단"}, pescoD:{en:"No meat, but eats fish and seafood",ko:"육류만 제외"},
-  custom:{en:"Custom",ko:"직접 설정"}, customD:{en:"Choose your own list",ko:"내가 고른 재료만 제외"},
-  lactoNote:{en:"Please confirm: do you eat eggs and dairy? Untick them below if not.",ko:"달걀과 유제품을 드시는지 한 번 더 확인해 주세요. 드시지 않으면 아래에서 선택하세요."},
-  pescoNote:{en:"Please confirm: do you eat fish and seafood? Tick them below if not.",ko:"생선과 해산물을 드시는지 한 번 더 확인해 주세요. 드시지 않으면 아래에서 선택하세요."},
-  veganNote:{en:"Vegan setting follows The Vegan Society's definition.",ko:"비건 기준은 The Vegan Society의 정의를 참고했어요."},
-  search:{en:"Search restaurants or menus",ko:"식당이나 메뉴 검색"},
+  lacto:{en:"Lacto-ovo",ko:"락토오보 채식"}, lactoD:{en:"No meat, fish or seafood",ko:"육류·생선·해산물 제외"},
+  pesco:{en:"Pescatarian",ko:"페스코 식단"}, pescoD:{en:"No meat",ko:"육류만 제외"},
+  custom:{en:"Custom",ko:"직접 설정"}, customD:{en:"Your own list",ko:"내가 고른 재료만 제외"},
+  exclude:{en:"Excluded ingredients",ko:"제외 재료"},
+  lactoNote:{en:"Do you eat eggs and dairy? Tick them if not.",ko:"달걀·유제품을 드시는지 다시 확인해 주세요."},
+  pescoNote:{en:"Do you eat fish and seafood? Tick them if not.",ko:"생선·해산물을 드시는지 다시 확인해 주세요."},
+  veganNote:{en:"Based on The Vegan Society's definition.",ko:"The Vegan Society의 정의를 참고했어요."},
+  noneSel:{en:"Pick at least one ingredient to exclude.",ko:"제외할 재료를 하나 이상 골라 주세요."},
+  area:{en:"Area",ko:"지역"},
   all:{en:"All Busan",ko:"부산 전체"}, haeundae:{en:"Haeundae",ko:"해운대"}, seomyeon:{en:"Seomyeon",ko:"서면"},
-  filterBy:{en:"Excluding",ko:"제외 중"}, edit:{en:"Edit",ko:"수정"},
-  matches:{en:"match",ko:"조건에 맞음"}, toConfirm:{en:"to confirm",ko:"확인 필요"}, contains:{en:"contains",ko:"제외 재료 포함"},
-  noResults:{en:"No menus to show here yet.",ko:"이 지역에는 아직 보여줄 메뉴가 없어요."},
-  noResultsTip:{en:"Try another area, clear the search, or review your excluded ingredients.",ko:"다른 지역을 고르거나 검색어를 지우거나 제외 재료를 다시 확인해 보세요."},
-  menus:{en:"Menus",ko:"메뉴"},
-  st_ok:{en:"Matches your preferences",ko:"조건에 맞음"},
+  search:{en:"Search restaurants or menus",ko:"식당이나 메뉴 검색"},
+  menuList:{en:"Menus",ko:"메뉴 목록"},
+  colMenu:{en:"Menu",ko:"메뉴"}, colPlace:{en:"Restaurant",ko:"식당"}, colArea:{en:"Area",ko:"지역"}, colStatus:{en:"Status",ko:"판정"},
+  st_ok:{en:"Matches",ko:"조건에 맞음"}, st_check:{en:"Needs confirmation",ko:"추가 확인 필요"}, st_contains:{en:"Contains excluded",ko:"제외 재료 포함"},
   st_okD:{en:"Label checked and confirmed by the restaurant.",ko:"성분표 확인과 식당 사용 확인을 모두 마쳤어요."},
-  st_contains:{en:"Contains excluded ingredient",ko:"제외 재료 포함"},
-  st_containsD:{en:"The restaurant confirmed it uses",ko:"식당에서 사용을 확인한 재료:"},
-  st_check:{en:"Needs confirmation",ko:"추가 확인 필요"},
-  st_checkD:{en:"Some parts are not confirmed yet. Ask the restaurant before ordering.",ko:"아직 확인되지 않은 부분이 있어요. 주문 전에 식당에 물어보세요."},
+  st_checkD:{en:"Some parts are not confirmed yet. Ask before ordering.",ko:"아직 확인되지 않은 부분이 있어요. 주문 전에 식당에 물어보세요."},
+  st_containsD:{en:"Restaurant confirmed it uses:",ko:"식당이 사용을 확인한 제외 재료:"},
+  flaggedD:{en:"A correction report is being re-checked.",ko:"정정 제보가 접수되어 다시 확인하고 있어요."},
+  noResults:{en:"No menus match these filters.",ko:"조건에 맞는 메뉴가 없어요."},
+  noResultsTip:{en:"Try another area, clear the search, or turn on more status filters.",ko:"다른 지역을 고르거나 검색어를 지우거나 판정 필터를 켜 보세요."},
+  pick:{en:"Select a menu to see its ingredients and evidence.",ko:"메뉴를 선택하면 재료와 성분 근거를 보여드려요."},
   t_ingredient:{en:"Ingredients",ko:"기본 재료"}, t_broth:{en:"Broth",ko:"육수"}, t_sauce:{en:"Sauce",ko:"소스·양념"}, t_side:{en:"Side dishes",ko:"반찬"},
-  seeEvidence:{en:"See ingredient evidence",ko:"성분 근거 보기"},
   evidence:{en:"Ingredient evidence",ko:"성분 근거"},
-  evidenceSub:{en:"Label text, AI reading and who checked it — product check and restaurant check are shown separately.",ko:"성분표 원문과 AI 해석, 확인한 주체를 보여줘요. 제품 분석과 식당 사용 확인은 따로 표시합니다."},
-  original:{en:"Label (original)",ko:"성분표 원문"}, aiReading:{en:"AI reading (English)",ko:"AI 해석"},
+  original:{en:"Label (original)",ko:"성분표 원문"}, aiReading:{en:"AI reading",ko:"AI 해석"},
   brand:{en:"Brand",ko:"브랜드"}, country:{en:"Sold in",ko:"판매 국가"}, size:{en:"Size",ko:"용량"},
-  labelChecked:{en:"Label checked",ko:"성분표 확인"}, by:{en:"by",ko:"확인 주체"},
+  labelChecked:{en:"Label checked",ko:"성분표 확인일"}, by:{en:"Checked by",ko:"확인 주체"},
   operator:{en:"AI draft + LeafMap reviewer",ko:"AI 초안 + 리프맵 검토자"},
   restConfirmed:{en:"Restaurant confirmed use",ko:"식당 사용 확인 완료"},
-  restPending:{en:"Restaurant review: pending",ko:"식당 확인: 대기 중"},
-  restPendingD:{en:"The restaurant has not yet confirmed it uses this product.",ko:"식당이 이 제품을 실제로 쓰는지 아직 확인하지 않았어요."},
+  restPending:{en:"Restaurant review pending",ko:"식당 확인 대기"},
+  restPendingD:{en:"Not yet confirmed that this product is actually used.",ko:"식당이 이 제품을 실제로 쓰는지 아직 확인하지 않았어요."},
   unknownProd:{en:"Product not identified",ko:"제품 확인 안 됨"},
-  unknownProdD:{en:"We don't know the exact product yet, so we can't check its label.",ko:"정확한 제품을 아직 모르기 때문에 성분표를 확인할 수 없어요."},
-  noneFound:{en:"None of your excluded ingredients found on this label.",ko:"이 성분표에서 제외 재료를 찾지 못했어요."},
-  found:{en:"Found on label:",ko:"성분표에서 발견:"},
-  recipe:{en:"Recipe items (entered by the restaurant)",ko:"식당이 입력한 레시피 재료"},
-  houseMade:{en:"House-made · restaurant recipe",ko:"직접 조리 · 식당 레시피"},
+  unknownProdD:{en:"We can't check a label until the exact product is known.",ko:"정확한 제품을 알아야 성분표를 확인할 수 있어요."},
+  noneFound:{en:"None of your excluded ingredients found.",ko:"제외 재료를 찾지 못했어요."},
+  found:{en:"Found:",ko:"발견:"},
+  houseMade:{en:"House-made",ko:"직접 조리"},
   showKorean:{en:"Show Korean request",ko:"한국어 요청 보기"},
   report:{en:"Report a change",ko:"정정 제보하기"},
   koReqTitle:{en:"Show this to the staff",ko:"직원에게 보여주세요"},
   koReqSub:{en:"English meaning:",ko:"영어 뜻:"},
   close:{en:"Close",ko:"닫기"},
-  reportTitle:{en:"Report a change",ko:"정정 제보"},
-  reportSub:{en:"Reports are reviewed before anything is changed. Current info stays as it is until then.",ko:"제보는 검토를 거친 뒤 반영돼요. 그 전까지 현재 정보는 그대로 유지됩니다."},
+  reportSub:{en:"Reports are reviewed before anything changes.",ko:"제보는 검토를 거친 뒤 반영돼요. 그 전까지 현재 정보는 그대로예요."},
   reportType:{en:"What changed?",ko:"무엇이 달라졌나요?"},
-  rt1:{en:"The recipe or ingredients changed",ko:"레시피나 재료가 바뀌었어요"},
-  rt2:{en:"A different sauce/product is used",ko:"다른 소스·제품을 쓰고 있어요"},
-  rt3:{en:"Something else is wrong",ko:"다른 정보가 틀렸어요"},
+  rt1:{en:"Recipe or ingredients changed",ko:"레시피나 재료가 바뀜"},
+  rt2:{en:"A different sauce/product is used",ko:"다른 소스·제품을 사용함"},
+  rt3:{en:"Something else is wrong",ko:"다른 정보가 틀림"},
   details:{en:"Details",ko:"자세한 내용"},
   submit:{en:"Send report",ko:"제보 보내기"},
-  reportDone:{en:"Thanks! Your report is under review.",ko:"제보가 접수되어 검토 중이에요."},
-  saved:{en:"Saved",ko:"저장"}, explore:{en:"Explore",ko:"탐색"}, prefs:{en:"Preferences",ko:"식단 설정"},
-  savedTitle:{en:"Saved menus",ko:"저장한 메뉴"},
-  savedEmpty:{en:"No saved menus yet. Tap ☆ on a menu to save it.",ko:"저장한 메뉴가 없어요. 메뉴에서 ☆를 눌러 저장하세요."},
-  myReports:{en:"My reports",ko:"내 제보"},
-  underReview:{en:"Under review",ko:"검토 중"},
-  savedToast:{en:"Saved",ko:"저장했어요"}, unsavedToast:{en:"Removed from saved",ko:"저장을 취소했어요"},
-  back:{en:"Back",ko:"뒤로"},
-  notFound:{en:"This page doesn't exist.",ko:"없는 페이지예요."},
+  reportDone:{en:"Report received — now under review.",ko:"제보가 접수되어 검토 중이에요."},
+  savedToast:{en:"Saved",ko:"저장했어요"}, unsavedToast:{en:"Removed",ko:"저장을 취소했어요"},
   demoPlace:{en:"Demo restaurant",ko:"가상 식당"},
-  disclaimer:{en:"LeafMap is a class project prototype. Always confirm with the restaurant before eating.",ko:"리프맵은 수업 과제용 시제품입니다. 식사 전에는 꼭 식당에 확인하세요."}
+  filterPlace:{en:"Restaurant",ko:"식당"},
+  // ops
+  kPlaces:{en:"Restaurants",ko:"등록 식당"}, kMenus:{en:"Menus",ko:"등록 메뉴"}, kProducts:{en:"Labels analysed",ko:"성분표 분석 제품"},
+  kPending:{en:"Items awaiting check",ko:"확인 대기 항목"}, kReports:{en:"Reports to review",ko:"검토 대기 제보"},
+  goal:{en:"MVP goal",ko:"MVP 목표"},
+  pipeline:{en:"Data pipeline",ko:"성분 데이터 처리 단계"},
+  pipeSub:{en:"All ingredient items across menus",ko:"전체 메뉴의 재료·육수·소스·반찬 항목 기준"},
+  p1:{en:"Items registered",ko:"식당 등록 항목"}, p2:{en:"Product identified",ko:"제품·레시피 특정"}, p3:{en:"Evidence reviewed (AI for labels)",ko:"근거 검토 완료 (성분표는 AI 분석)"}, p4:{en:"Restaurant confirmed",ko:"식당 사용 확인"},
+  judge:{en:"Menu status by restaurant",ko:"식당별 메뉴 판정 현황"},
+  judgeFor:{en:"Diet",ko:"기준 식단"},
+  current:{en:"Traveler setting",ko:"현재 여행자 설정"},
+  tourists:{en:"Foreign visitors to Busan",ko:"부산 방문 외국인 관광객"},
+  touristsUnit:{en:"10,000 people",ko:"단위 만 명"},
+  touristsSrc:{en:"Source: Busan Metropolitan City (2025.2), Busan Development Institute (2026.6). Total foreign visitors, not vegetarians only.",ko:"출처: 부산광역시(2025.2), 부산연구원(2026.6). 채식 여행자가 아닌 전체 외국인 관광객 규모예요."},
+  queue:{en:"Confirmation queue",ko:"확인 대기 목록"},
+  qItem:{en:"Item",ko:"항목"}, qReason:{en:"Reason",ko:"사유"}, qNext:{en:"Next step",ko:"다음 조치"},
+  rUnknown:{en:"Product unknown",ko:"제품 불명"}, rPending:{en:"Restaurant check pending",ko:"식당 확인 대기"}, rFlag:{en:"Correction report",ko:"정정 제보 재확인"},
+  nUnknown:{en:"Ask for brand, product name and label photo",ko:"브랜드·제품명·성분표 사진 요청"},
+  nPending:{en:"Ask restaurant to confirm actual use",ko:"식당에 실제 사용 여부 확인"},
+  nFlag:{en:"Re-check with restaurant, log evidence and date",ko:"식당 재확인 후 수정 근거·확인일 기록"},
+  products:{en:"Analysed product labels",ko:"성분표 분석 제품"},
+  pName:{en:"Product",ko:"제품"}, pAnimal:{en:"Animal-derived",ko:"동물 유래 성분"}, pUsed:{en:"Used in",ko:"사용 메뉴"},
+  none:{en:"None found",ko:"없음"},
+  reports:{en:"Correction reports",ko:"정정 제보"},
+  rDate:{en:"Date",ko:"접수일"}, rType:{en:"Type",ko:"유형"}, rText:{en:"Details",ko:"내용"}, rStatus:{en:"Status",ko:"상태"},
+  sReview:{en:"Under review",ko:"검토 중"}, sFlagged:{en:"Moved to re-check",ko:"추가 확인 전환"}, sRejected:{en:"Rejected",ko:"반려"},
+  aFlag:{en:"Re-check",ko:"추가 확인으로"}, aReject:{en:"Reject",ko:"반려"},
+  noReports:{en:"No reports yet.",ko:"접수된 제보가 없어요."},
+  flagToast:{en:"Menu moved to 'Needs confirmation'.",ko:"해당 메뉴를 추가 확인 상태로 돌렸어요."},
+  rejToast:{en:"Report rejected. Menu info unchanged.",ko:"제보를 반려했어요. 메뉴 정보는 그대로예요."},
+  foot:{en:"LeafMap is a class project prototype. Always confirm with the restaurant before eating.",ko:"리프맵은 수업 과제용 시제품입니다. 식당·제품·성분표는 가상 데이터이며, 식사 전에는 꼭 식당에 확인하세요."}
 };
-const CATS = ["meat","fish","seafood","egg","dairy","honey"];
-const CAT = {
-  meat:{en:"Meat",ko:"육류"}, fish:{en:"Fish",ko:"생선"}, seafood:{en:"Seafood",ko:"해산물"},
-  egg:{en:"Eggs",ko:"달걀"}, dairy:{en:"Dairy",ko:"유제품"}, honey:{en:"Honey",ko:"꿀"}
-};
-const DIETS = {
-  vegan:["meat","fish","seafood","egg","dairy","honey"],
-  lacto:["meat","fish","seafood"],
-  pesco:["meat"]
-};
+const CATS=["meat","fish","seafood","egg","dairy","honey"];
+const CAT={meat:{en:"Meat",ko:"육류"},fish:{en:"Fish",ko:"생선"},seafood:{en:"Seafood",ko:"해산물"},egg:{en:"Eggs",ko:"달걀"},dairy:{en:"Dairy",ko:"유제품"},honey:{en:"Honey",ko:"꿀"}};
+const DIETS={vegan:["meat","fish","seafood","egg","dairy","honey"],lacto:["meat","fish","seafood"],pesco:["meat"]};
 
 // ---------- demo data (fictional) ----------
-const PRODUCTS = {
+const PRODUCTS={
   A:{brand:"Demo brand",name:"Product A · soy sauce",country:"KR",size:"500 ml",label:"정제수, 탈지대두, 소맥, 천일염, 주정",ai:"Water, defatted soybeans, wheat, sea salt, alcohol (for brewing)",contains:[],checked:"2026-11-02"},
   B:{brand:"Demo brand",name:"Product B · gochujang",country:"KR",size:"1 kg",label:"찹쌀, 고춧가루, 물엿, 정제소금, 메주가루",ai:"Glutinous rice, red pepper powder, corn syrup, refined salt, fermented soybean powder",contains:[],checked:"2026-11-02"},
   C:{brand:"Sample Foods",name:"Product C · anchovy fish sauce",country:"KR",size:"800 g",label:"멸치, 천일염",ai:"Anchovy, sea salt",contains:["fish"],checked:"2026-11-03"},
@@ -261,8 +319,7 @@ const PRODUCTS = {
   H:{brand:"Test Sauce Co.",name:"Product H · oyster sauce",country:"KR",size:"500 g",label:"굴추출물, 설탕, 정제소금, 변성전분",ai:"Oyster extract, sugar, refined salt, modified starch",contains:["seafood"],checked:"2026-11-05"},
   I:{brand:"Demo brand",name:"Product I · vinegar chili sauce",country:"KR",size:"1 kg",label:"정제수, 고추장, 설탕, 양조식초, 사과",ai:"Water, gochujang, sugar, brewed vinegar, apple",contains:[],checked:"2026-11-05"}
 };
-// component: {type, name:{en,ko}, contains:[], rest:"confirmed"|"pending", product?:key, unknown?:true, restDate?}
-const MENUS = {
+const MENUS={
   m1:{place:"r1",emoji:"🍚",name:{en:"Tofu rice bowl",ko:"두부 덮밥"},desc:{en:"Steamed rice with marinated tofu and seasonal vegetables.",ko:"양념 두부와 제철 채소를 올린 덮밥."},
     comps:[{type:"ingredient",name:{en:"Tofu",ko:"두부"},contains:[],rest:"confirmed"},{type:"ingredient",name:{en:"Rice",ko:"밥"},contains:[],rest:"confirmed"},{type:"ingredient",name:{en:"Vegetables",ko:"채소"},contains:[],rest:"confirmed"},{type:"sauce",name:{en:"Soy sauce",ko:"간장"},product:"A",rest:"pending"}]},
   m2:{place:"r1",emoji:"🥗",name:{en:"Mushroom bibimbap",ko:"버섯 비빔밥"},desc:{en:"Rice with sautéed mushrooms, greens and gochujang.",ko:"볶은 버섯과 나물을 고추장에 비벼 먹는 밥."},
@@ -288,294 +345,355 @@ const MENUS = {
   m12:{place:"r4",emoji:"🍠",name:{en:"Roasted sweet potato plate",ko:"구운 고구마 플레이트"},desc:{en:"Roasted sweet potato, beans and greens with sesame sauce.",ko:"구운 고구마, 콩, 채소에 참깨 소스를 곁들인 접시."},
     comps:[{type:"ingredient",name:{en:"Sweet potato, beans, greens",ko:"고구마·콩·채소"},contains:[],rest:"confirmed"},{type:"sauce",name:{en:"Sesame sauce (house-made)",ko:"참깨 소스(직접 조리)"},contains:[],rest:"confirmed",restDate:"2026-11-09"},{type:"side",name:{en:"Pickled cucumber",ko:"오이 피클"},contains:[],rest:"confirmed"}]}
 };
-const PLACES = [
+const PLACES=[
   {id:"r1",emoji:"🌿",name:{en:"Green Table",ko:"그린테이블"},area:"haeundae",lat:35.1622,lng:129.1585},
   {id:"r2",emoji:"🍲",name:{en:"Sora Kitchen",ko:"소라키친"},area:"haeundae",lat:35.1609,lng:129.1648},
   {id:"r3",emoji:"🥢",name:{en:"Haneul Bowl",ko:"하늘볼"},area:"seomyeon",lat:35.1583,lng:129.0594},
   {id:"r4",emoji:"🍛",name:{en:"Forest Dining",ko:"포레스트다이닝"},area:"seomyeon",lat:35.1561,lng:129.0628}
 ];
+const TOURISTS=[{y:"2023",v:182},{y:"2024",v:293},{y:"2025",v:364}];
+const GOAL={places:10,menus:30};
 Object.keys(MENUS).forEach(id=>MENUS[id].id=id);
+const ORDER={ok:0,check:1,contains:2};
 
 // ---------- state ----------
-const STORE_KEY="leafmap-state-v1";
-let state={lang:"en",diet:"vegan",excluded:[...DIETS.vegan],area:"all",q:"",saved:[],reports:[]};
-try{const s=JSON.parse(localStorage.getItem(STORE_KEY)||"null");if(s&&typeof s==="object")state=Object.assign(state,s);}catch(e){}
-function persist(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));}catch(e){}}
+const KEY="leafmap-dashboard-v1";
+let state={lang:"ko",tab:"traveler",diet:"vegan",excluded:[...DIETS.vegan],area:"all",place:null,q:"",show:{ok:true,check:true,contains:true},sel:null,saved:[],
+  reports:[{id:"seed1",menu:"m6",type:"rt2",text:"된장 제품이 바뀐 것 같아요. 포장이 달라 보였어요.",date:"2026-11-09",status:"review"}],opsDiet:"current"};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&typeof s==="object")state=Object.assign(state,s);}catch(e){}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 
 const lg=()=>state.lang;
-const josa=(w,a,b)=>{const c=w.charCodeAt(w.length-1);return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b;};
 const t=k=>(T[k]?T[k][lg()]:k);
 const tx=o=>o[lg()]||o.en;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const catNames=arr=>arr.map(c=>tx(CAT[c])).join(lg()==="ko"?"·":", ");
+const catNames=a=>a.map(c=>tx(CAT[c])).join(lg()==="ko"?"·":", ");
+const josa=(w,a,b)=>{const c=w.charCodeAt(w.length-1);return(c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b;};
+const placeOf=id=>PLACES.find(p=>p.id===id);
 
-// ---------- judgement ----------
+// ---------- judgement (follows the plan's three status rules) ----------
+const flagged=()=>state.reports.filter(r=>r.status==="flagged").map(r=>r.menu);
 function compContains(c){return c.product?PRODUCTS[c.product].contains:(c.contains||[]);}
-function judgeComp(c){
-  const hits=compContains(c).filter(x=>state.excluded.includes(x));
+function judgeComp(c,ex=state.excluded){
+  const hits=compContains(c).filter(x=>ex.includes(x));
   if(c.unknown)return{s:"check",hits:[]};
   if(c.rest==="confirmed"&&hits.length)return{s:"contains",hits};
   if(c.rest!=="confirmed")return{s:"check",hits};
   return{s:"ok",hits:[]};
 }
-function judgeMenu(m){
-  const r=m.comps.map(judgeComp);
-  const containHits=[...new Set(r.filter(x=>x.s==="contains").flatMap(x=>x.hits))];
-  if(containHits.length)return{s:"contains",hits:containHits};
-  if(r.some(x=>x.s==="check"))return{s:"check",hits:[]};
+function judgeMenu(m,ex=state.excluded){
+  const r=m.comps.map(c=>judgeComp(c,ex));
+  const hits=[...new Set(r.filter(x=>x.s==="contains").flatMap(x=>x.hits))];
+  if(hits.length)return{s:"contains",hits};
+  if(r.some(x=>x.s==="check")||flagged().includes(m.id))return{s:"check",hits:[],flag:flagged().includes(m.id)};
   return{s:"ok",hits:[]};
 }
-function placeMenus(pid){return Object.values(MENUS).filter(m=>m.place===pid);}
-function placeCounts(pid){
-  const c={ok:0,check:0,contains:0};placeMenus(pid).forEach(m=>c[judgeMenu(m).s]++);return c;
-}
+const placeMenus=pid=>Object.values(MENUS).filter(m=>m.place===pid);
 
 // ---------- icons ----------
-const ICON={
-  leaf:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 20c0-9 6-15 16-15 0 10-6 16-15 16l-1-1z" fill="#245c45"/><path d="M6 18 15 9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
-  search:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
-  explore:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
-  saved:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-6-4-6 4z"/></svg>',
-  prefs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
-};
-const ST_ICON={ok:"✓",check:"⏱",contains:"✕"};
+const LEAF='<svg viewBox="0 0 24 24" fill="none"><path d="M4 20c0-9 6-15 16-15 0 10-6 16-15 16l-1-1z" fill="#245c45"/><path d="M6 18 15 9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const SEARCH='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+const ICO={ok:"✓",check:"⏱",contains:"✕"};
+const $=id=>document.getElementById(id);
 
-// ---------- shell ----------
-let map=null;
-function killMap(){if(map){map.remove();map=null;}}
-
-function renderTop(back){
-  document.getElementById("demoBar").textContent=t("demo");
-  const lang=`<div class="lang" role="group" aria-label="${t("language")}">
-    <button data-lang="en" aria-pressed="${lg()==="en"}">EN</button><button data-lang="ko" aria-pressed="${lg()==="ko"}">한국어</button></div>`;
-  const left=back?`<button class="back" data-back="${back}" aria-label="${t("back")}">‹ ${t("back")}</button>`
-    :`<a class="brand" href="#/explore">${ICON.leaf}LeafMap</a>`;
-  document.getElementById("topbar").innerHTML=left+lang;
-}
-function renderTabs(active){
-  const tabs=[["explore","#/explore"],["saved","#/saved"],["prefs","#/setup"]];
-  document.getElementById("tabbar").innerHTML=tabs.map(([k,h])=>
-    `<a href="${h}" class="${active===k?"on":""}" ${active===k?'aria-current="page"':""}>${ICON[k]}<span>${t(k)}</span></a>`).join("");
-}
-function setView(html){const v=document.getElementById("view");v.innerHTML=html;window.scrollTo(0,0);}
-
-// ---------- screens ----------
-function viewSetup(){
-  renderTop();renderTabs("prefs");
-  const diets=["vegan","lacto","pesco","custom"];
-  const note=state.diet==="lacto"?`<div class="note warn">${t("lactoNote")}</div>`
-    :state.diet==="pesco"?`<div class="note warn">${t("pescoNote")}</div>`
-    :state.diet==="vegan"?`<div class="note info">${t("veganNote")}</div>`:"";
-  setView(`
-    <h1>${t("prefsTitle")}</h1><p class="sub">${t("prefsSub")}</p>
-    <h2>${t("dietType")}</h2>
-    <div class="options" role="radiogroup">${diets.map(d=>`
-      <button class="opt" role="radio" aria-checked="${state.diet===d}" data-diet="${d}">
-        <i class="dot"></i><div><b>${t(d)}</b><span>${t(d+"D")}</span></div></button>`).join("")}
+// ---------- header ----------
+function renderTop(){
+  $("top").innerHTML=`
+    <div class="brand">${LEAF}LeafMap<small class="hide-m">${t("sub")}</small></div>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="traveler" aria-selected="${state.tab==="traveler"}">${t("tabT")}</button>
+      <button role="tab" data-tab="ops" aria-selected="${state.tab==="ops"}">${t("tabO")}</button>
     </div>
-    ${note}
-    <h2>${t("exclude")}</h2><p class="muted" style="margin:-4px 0 10px">${t("excludeSub")}</p>
-    <div class="chips">${CATS.map(c=>`<button class="chip" data-cat="${c}" aria-pressed="${state.excluded.includes(c)}">${tx(CAT[c])}</button>`).join("")}</div>
-    <div class="card summary"><b>${t("summary")}</b>${state.excluded.length?esc(catNames(state.excluded)):`<span class="muted">${t("noneSel")}</span>`}</div>
-    <div class="stack"><a class="btn" href="#/explore" ${state.excluded.length?"":'aria-disabled="true" data-block="1"'}>${t("findFood")} ›</a></div>
-    <p class="footer-note">${t("disclaimer")}</p>`);
+    <div class="spacer"></div>
+    <span class="demo">${t("demo")}</span>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-lang="ko" aria-pressed="${lg()==="ko"}">한국어</button><button data-lang="en" aria-pressed="${lg()==="en"}">EN</button>
+    </div>`;
+  document.documentElement.lang=lg();
+}
+function render(){renderTop();killMap();state.tab==="ops"?renderOps():renderTraveler();}
+
+// =========================================================
+// Traveler tab
+// =========================================================
+let map=null,markerLayer=null;
+function killMap(){if(map){map.remove();map=null;markerLayer=null;}}
+
+function renderTraveler(){
+  $("main").innerHTML=`
+    <div class="tgrid">
+      <aside class="col"><div class="card pad" id="left"></div></aside>
+      <section class="col">
+        <div class="card pad">
+          <div class="toolbar" style="margin-bottom:12px">
+            <label class="search">${SEARCH}<input id="q" type="search" value="${esc(state.q)}" placeholder="${t("search")}" aria-label="${t("search")}"></label>
+            <div class="sum" id="sum"></div>
+          </div>
+          <div id="map" role="img" aria-label="Map of Busan"></div>
+        </div>
+        <div class="card pad" id="list"></div>
+      </section>
+      <aside class="col right"><div class="card pad sticky" id="right"></div></aside>
+    </div>
+    <p class="foot">${t("foot")}</p>`;
+  $("q").addEventListener("input",e=>{state.q=e.target.value;persist();renderList();renderMarkers();});
+  initMap();renderLeft();renderList();renderMarkers();renderRight();
 }
 
-function viewExplore(){
-  renderTop();renderTabs("explore");
-  const q=state.q.trim().toLowerCase();
-  let places=PLACES.filter(p=>state.area==="all"||p.area===state.area);
-  if(q)places=places.filter(p=>[p.name.en,p.name.ko,...placeMenus(p.id).flatMap(m=>[m.name.en,m.name.ko])].some(s=>s.toLowerCase().includes(q)));
-  const rows=places.map(p=>({p,c:placeCounts(p.id)})).filter(x=>x.c.ok+x.c.check>0)
-    .sort((a,b)=>b.c.ok-a.c.ok||b.c.check-a.c.check);
-  const list=rows.length?rows.map(({p,c})=>`
-    <a class="card place" href="#/place/${p.id}">
-      <div class="thumb">${p.emoji}</div>
-      <div class="info"><div class="name">${esc(tx(p.name))}</div>
-        <div class="meta">${t(p.area)} · ${t("demoPlace")}</div>
-        <div class="counts">${c.ok?`<span class="badge ok">${c.ok} ${t("matches")}</span>`:""}${c.check?`<span class="badge check">${c.check} ${t("toConfirm")}</span>`:""}</div>
-      </div><span class="chev">›</span></a>`).join("")
-    :`<div class="card empty"><div class="big">🥕</div><p><b>${t("noResults")}</b></p><p class="muted">${t("noResultsTip")}</p></div>`;
-  setView(`
-    <label class="search">${ICON.search}<input id="q" type="search" value="${esc(state.q)}" placeholder="${t("search")}" aria-label="${t("search")}"></label>
-    <div class="seg" role="group">${["all","haeundae","seomyeon"].map(a=>`<button data-area="${a}" aria-pressed="${state.area===a}">${t(a)}</button>`).join("")}</div>
-    <div class="filterline"><span>${t("filterBy")}: <b>${state.excluded.length?esc(catNames(state.excluded)):"—"}</b></span><a href="#/setup">${t("edit")}</a></div>
-    <div id="map" role="img" aria-label="Map of Busan"></div>
-    <div class="list">${list}</div>`);
-  initMap(rows.map(r=>r.p),rows);
-  const qi=document.getElementById("q");
-  qi.addEventListener("input",e=>{state.q=e.target.value;persist();clearTimeout(qi._t);qi._t=setTimeout(()=>{const pos=qi.selectionStart;viewExplore();const n=document.getElementById("q");n.focus();try{n.setSelectionRange(pos,pos);}catch(_){}} ,250);});
+function renderLeft(){
+  const note=state.diet==="lacto"?`<div class="note warn">${t("lactoNote")}</div>`:state.diet==="pesco"?`<div class="note warn">${t("pescoNote")}</div>`:state.diet==="vegan"?`<div class="note info">${t("veganNote")}</div>`:"";
+  $("left").innerHTML=`
+    <div class="ctitle">${t("prefs")}</div>
+    <div class="opts" role="radiogroup">${["vegan","lacto","pesco","custom"].map(d=>`
+      <button class="opt" role="radio" aria-checked="${state.diet===d}" data-diet="${d}"><i class="dot"></i><div><b>${t(d)}</b><span>${t(d+"D")}</span></div></button>`).join("")}</div>
+    ${note}
+    <div class="label">${t("exclude")}</div>
+    <div class="chips">${CATS.map(c=>`<button class="chip" data-cat="${c}" aria-pressed="${state.excluded.includes(c)}">${tx(CAT[c])}</button>`).join("")}</div>
+    ${state.excluded.length?"":`<div class="note warn">${t("noneSel")}</div>`}
+    <div class="label">${t("area")}</div>
+    <div class="seg">${["all","haeundae","seomyeon"].map(a=>`<button data-area="${a}" aria-pressed="${state.area===a}">${t(a)}</button>`).join("")}</div>`;
 }
-function initMap(places,rows){
-  killMap();
-  if(typeof L_==="undefined"||!L_){return;}
-  const el=document.getElementById("map");if(!el)return;
-  const centers={all:[35.165,129.11,12],haeundae:[35.1612,129.1615,15],seomyeon:[35.1573,129.061,15]};
-  const [la,lo,z]=centers[state.area];
-  map=L_.map(el,{zoomControl:false,attributionControl:true}).setView([la,lo],z);
-  L_.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
-  rows.forEach(({p,c})=>{
-    const cls=c.ok?"ok":c.check?"check":"none";
-    const icon=L_.divIcon({className:"",html:`<div class="pin ${cls}"><span>${c.ok||c.check}</span></div>`,iconSize:[34,34],iconAnchor:[17,34]});
-    L_.marker([p.lat,p.lng],{icon,title:tx(p.name)}).addTo(map).on("click",()=>{location.hash="#/place/"+p.id;});
+
+function visibleMenus(){
+  const q=state.q.trim().toLowerCase();
+  return Object.values(MENUS).filter(m=>{
+    const p=placeOf(m.place);
+    if(state.area!=="all"&&p.area!==state.area)return false;
+    if(state.place&&m.place!==state.place)return false;
+    if(q&&![m.name.en,m.name.ko,p.name.en,p.name.ko].some(s=>s.toLowerCase().includes(q)))return false;
+    return true;
+  }).map(m=>({m,j:judgeMenu(m)}));
+}
+
+function renderList(){
+  const all=visibleMenus();
+  const cnt={ok:0,check:0,contains:0};all.forEach(x=>cnt[x.j.s]++);
+  $("sum").innerHTML=["ok","check","contains"].map(s=>`<button class="sumbtn ${s}" data-show="${s}" aria-pressed="${state.show[s]}"><b>${cnt[s]}</b>${t("st_"+s)}</button>`).join("");
+  const rows=all.filter(x=>state.show[x.j.s]).sort((a,b)=>ORDER[a.j.s]-ORDER[b.j.s]);
+  const pc=state.place?`<button class="placechip" data-clearplace>${t("filterPlace")}: ${esc(tx(placeOf(state.place).name))} ✕</button>`:"";
+  $("list").innerHTML=`<div class="ctitle">${t("menuList")} <small>${rows.length}</small>${pc}</div>`+(rows.length?`
+    <div class="tbl-wrap"><table><thead><tr><th>${t("colMenu")}</th><th>${t("colPlace")}</th><th class="hide-m">${t("colArea")}</th><th>${t("colStatus")}</th></tr></thead><tbody>
+    ${rows.map(({m,j})=>{const p=placeOf(m.place);return `<tr class="click ${state.sel===m.id?"sel":""}" data-menu="${m.id}" tabindex="0">
+      <td><div class="mname"><span class="emo">${m.emoji}</span>${esc(tx(m.name))}</div></td>
+      <td>${esc(tx(p.name))}</td><td class="hide-m">${t(p.area)}</td>
+      <td><span class="badge ${j.s}">${ICO[j.s]} ${t("st_"+j.s)}</span></td></tr>`;}).join("")}
+    </tbody></table></div>`:`<div class="empty"><b>${t("noResults")}</b><p class="muted">${t("noResultsTip")}</p></div>`);
+}
+
+function initMap(){
+  const L_=window.L;const el=$("map");if(!L_||!el)return;
+  map=L_.map(el,{zoomControl:true,scrollWheelZoom:false}).setView([35.161,129.11],12);
+  L_.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(map);
+  markerLayer=L_.layerGroup().addTo(map);
+  fitArea();
+}
+function fitArea(){
+  if(!map)return;
+  const c={all:[35.161,129.11,12],haeundae:[35.1612,129.1615,15],seomyeon:[35.1573,129.061,15]}[state.area];
+  map.setView([c[0],c[1]],c[2]);
+}
+function renderMarkers(){
+  if(!map||!markerLayer)return;const L_=window.L;markerLayer.clearLayers();
+  const vis=visibleMenus();
+  PLACES.forEach(p=>{
+    if(state.area!=="all"&&p.area!==state.area)return;
+    const ms=vis.filter(x=>x.m.place===p.id);if(!ms.length&&!state.place)return;
+    const ok=ms.filter(x=>x.j.s==="ok").length,ch=ms.filter(x=>x.j.s==="check").length;
+    const cls=ok?"ok":ch?"check":"none";
+    const icon=L_.divIcon({className:"",html:`<div class="pin ${cls} ${state.place===p.id?"sel":""}"><span>${ok||ch}</span></div>`,iconSize:[34,34],iconAnchor:[17,34]});
+    L_.marker([p.lat,p.lng],{icon,title:tx(p.name)}).addTo(markerLayer)
+      .bindTooltip(`${esc(tx(p.name))} · ${ok} ${t("st_ok")} · ${ch} ${t("st_check")}`)
+      .on("click",()=>{state.place=state.place===p.id?null:p.id;persist();renderList();renderMarkers();});
   });
-  if(rows.length>1&&state.area!=="all"){map.fitBounds(rows.map(r=>[r.p.lat,r.p.lng]),{padding:[40,40],maxZoom:16});}
 }
 
 function statusBox(j){
-  const d=j.s==="contains"?`${t("st_containsD")} ${esc(catNames(j.hits))}`:t("st_"+j.s+"D");
-  return `<div class="status ${j.s}"><span class="ico">${ST_ICON[j.s]}</span><div><b>${t("st_"+j.s)}</b><span>${d}</span></div></div>`;
+  const d=j.s==="contains"?`${t("st_containsD")} ${esc(catNames(j.hits))}`:(j.flag?t("flaggedD"):t("st_"+j.s+"D"));
+  return `<div class="status ${j.s}"><span>${ICO[j.s]}</span><div><b>${t("st_"+j.s)}</b>${d}</div></div>`;
 }
-
-function viewPlace(id){
-  const p=PLACES.find(x=>x.id===id);if(!p)return viewNotFound();
-  renderTop("#/explore");renderTabs("explore");
-  const ms=placeMenus(id).map(m=>({m,j:judgeMenu(m)})).sort((a,b)=>({ok:0,check:1,contains:2}[a.j.s]-{ok:0,check:1,contains:2}[b.j.s]));
-  setView(`
-    <div class="hero" style="background:var(--green-soft)">${p.emoji}</div>
-    <h1>${esc(tx(p.name))}</h1><p class="sub">${t(p.area)} · ${t("demoPlace")}</p>
-    <h2>${t("menus")}</h2>
-    <div class="list" style="margin-top:0">${ms.map(({m,j})=>`
-      <a class="card menu-row" href="#/menu/${m.id}"><div class="thumb">${m.emoji}</div>
-        <div class="info" style="flex:1;min-width:0"><div class="name" style="font-weight:700">${esc(tx(m.name))}</div>
-        <div class="counts"><span class="badge ${j.s}">${ST_ICON[j.s]} ${t("st_"+j.s)}</span></div></div><span class="chev">›</span></a>`).join("")}
-    </div>`);
-}
-
-function viewMenu(id){
-  const m=MENUS[id];if(!m)return viewNotFound();
-  const p=PLACES.find(x=>x.id===m.place);
-  renderTop("#/place/"+p.id);renderTabs("explore");
-  const j=judgeMenu(m);const isSaved=state.saved.includes(id);
-  const groups=["ingredient","broth","sauce","side"].map(ty=>{
-    const cs=m.comps.filter(c=>c.type===ty);if(!cs.length)return"";
-    return `<div class="group"><h3>${t("t_"+ty)}</h3><div class="chips">${cs.map(c=>{const r=judgeComp(c);
-      const extra=c.product?` · ${esc(PRODUCTS[c.product].name.split(" · ")[0])}`:"";
-      return `<span class="comp ${r.s==="ok"?"":r.s}">${r.s!=="ok"?ST_ICON[r.s]+" ":""}${esc(tx(c.name))}${extra}</span>`;}).join("")}</div></div>`;
-  }).join("");
-  setView(`
-    <div class="hero" style="background:#f1ece2">${m.emoji}
-      <button class="save" data-save="${id}" aria-pressed="${isSaved}" aria-label="${t("saved")}">${isSaved?"★":"☆"}</button></div>
-    <div class="muted">${esc(tx(p.name))} · ${t("demoPlace")}</div>
-    <h1>${esc(tx(m.name))}</h1><p class="sub">${esc(tx(m.desc))}</p>
-    ${statusBox(j)}
-    ${groups}
-    <div class="stack"><a class="btn" href="#/evidence/${id}">${t("seeEvidence")} ›</a></div>`);
-}
-
-function viewEvidence(id){
-  const m=MENUS[id];if(!m)return viewNotFound();
-  renderTop("#/menu/"+id);renderTabs("explore");
-  const cards=m.comps.filter(c=>c.product||c.unknown||c.type==="broth"||c.type==="sauce").map(c=>{
+function evidenceCards(m){
+  return m.comps.filter(c=>c.product||c.unknown||c.type==="broth"||c.type==="sauce").map(c=>{
     const r=judgeComp(c);
     const restLine=c.rest==="confirmed"
-      ?`<div class="rest"><span>✓</span><div><b>${t("restConfirmed")}</b><div class="muted">${c.restDate||""}</div></div></div>`
+      ?`<div class="rest"><span>✓</span><div><b>${t("restConfirmed")}</b> <span class="muted">${c.restDate||""}</span></div></div>`
       :`<div class="rest" style="color:var(--amber)"><span>⏱</span><div><b>${t("restPending")}</b><div>${t("restPendingD")}</div></div></div>`;
-    if(c.unknown){
-      return `<div class="card ev"><div class="ev-head"><div class="bottle">❔</div><div><b>${esc(tx(c.name))}</b><span class="muted">${t("t_"+c.type)}</span></div></div>
-        <div class="found check">⏱ <b>${t("unknownProd")}</b> — ${t("unknownProdD")}</div>${restLine}</div>`;
-    }
-    if(!c.product){
-      const hits=(c.contains||[]).filter(x=>state.excluded.includes(x));
-      return `<div class="card ev"><div class="ev-head"><div class="bottle">🥣</div><div><b>${esc(tx(c.name))}</b><span class="muted">${t("t_"+c.type)} · ${t("houseMade")}</span></div></div>
-        ${hits.length?`<div class="found ${r.s}">${t("found")} ${esc(catNames(hits))}</div>`:`<div class="found ok">✓ ${t("noneFound").replace(/label|성분표/,lg()==="ko"?"레시피":"recipe")}</div>`}${restLine}</div>`;
-    }
+    if(c.unknown)return `<div class="ev"><div class="ev-head"><div class="bottle">❔</div><div><b>${esc(tx(c.name))}</b><span class="muted">${t("t_"+c.type)}</span></div></div>
+      <div class="found check"><b>${t("unknownProd")}</b> — ${t("unknownProdD")}</div>${restLine}</div>`;
+    if(!c.product){const hits=(c.contains||[]).filter(x=>state.excluded.includes(x));
+      return `<div class="ev"><div class="ev-head"><div class="bottle">🥣</div><div><b>${esc(tx(c.name))}</b><span class="muted">${t("t_"+c.type)} · ${t("houseMade")}</span></div></div>
+      ${hits.length?`<div class="found ${r.s}">${t("found")} ${esc(catNames(hits))}</div>`:`<div class="found ok">✓ ${t("noneFound")}</div>`}${restLine}</div>`;}
     const pr=PRODUCTS[c.product];const hits=pr.contains.filter(x=>state.excluded.includes(x));
-    return `<div class="card ev">
-      <div class="ev-head"><div class="bottle">🧴</div><div><b>${esc(pr.name)}</b><span class="muted">${esc(tx(c.name))} · ${t("t_"+c.type)}</span></div></div>
-      <dl class="kv"><dt>${t("brand")}</dt><dd>${esc(pr.brand)}</dd><dt>${t("country")}</dt><dd>${esc(pr.country)}</dd><dt>${t("size")}</dt><dd>${esc(pr.size)}</dd>
-        <dt>${t("labelChecked")}</dt><dd>${pr.checked}</dd><dt>${t("by")}</dt><dd>${t("operator")}</dd></dl>
-      <div class="label-box"><div><small>${t("original")}</small>${esc(pr.label)}</div><div><small>${t("aiReading")}</small>${esc(pr.ai)}</div></div>
+    return `<div class="ev"><div class="ev-head"><div class="bottle">🧴</div><div><b>${esc(pr.name)}</b><span class="muted">${esc(tx(c.name))} · ${t("t_"+c.type)}</span></div></div>
+      <dl class="kv"><dt>${t("brand")}</dt><dd>${esc(pr.brand)}</dd><dt>${t("country")}</dt><dd>${esc(pr.country)} · ${esc(pr.size)}</dd><dt>${t("labelChecked")}</dt><dd>${pr.checked}</dd><dt>${t("by")}</dt><dd>${t("operator")}</dd></dl>
+      <div class="lbl"><small>${t("original")}</small>${esc(pr.label)}</div><div class="lbl"><small>${t("aiReading")}</small>${esc(pr.ai)}</div>
       ${hits.length?`<div class="found ${r.s==="contains"?"contains":"check"}">${t("found")} ${esc(catNames(hits))}</div>`:`<div class="found ok">✓ ${t("noneFound")}</div>`}
       ${restLine}</div>`;
   }).join("");
-  const recipe=m.comps.filter(c=>c.type==="ingredient"&&!c.product||c.type==="side");
-  setView(`
-    <h1>${t("evidence")}</h1><p class="sub">${esc(tx(m.name))} — ${t("evidenceSub")}</p>
-    ${statusBox(judgeMenu(m))}
-    ${cards}
-    <div class="card ev"><b>${t("recipe")}</b><div class="chips" style="margin-top:8px">${recipe.map(c=>{const r=judgeComp(c);return `<span class="comp ${r.s==="ok"?"":r.s}">${esc(tx(c.name))}</span>`;}).join("")}</div></div>
-    <div class="stack"><button class="btn" data-korean="${id}">${t("showKorean")}</button><button class="btn ghost" data-report="${id}">${t("report")}</button></div>
-    <p class="footer-note">${t("disclaimer")}</p>`);
+}
+function renderRight(){
+  const m=MENUS[state.sel];
+  if(!m){$("right").innerHTML=`<div class="placeholder"><div class="big">🥢</div><p>${t("pick")}</p></div>`;return;}
+  const p=placeOf(m.place);const j=judgeMenu(m);const saved=state.saved.includes(m.id);
+  const groups=["ingredient","broth","sauce","side"].map(ty=>{const cs=m.comps.filter(c=>c.type===ty);if(!cs.length)return"";
+    return `<div class="grp"><h4>${t("t_"+ty)}</h4><div class="chips">${cs.map(c=>{const r=judgeComp(c);return `<span class="comp ${r.s==="ok"?"":r.s}">${r.s!=="ok"?ICO[r.s]+" ":""}${esc(tx(c.name))}</span>`;}).join("")}</div></div>`;}).join("");
+  $("right").innerHTML=`
+    <div class="hero">${m.emoji}<button class="save" data-save="${m.id}" aria-pressed="${saved}" aria-label="save">${saved?"★":"☆"}</button></div>
+    <div class="muted">${esc(tx(p.name))} · ${t(p.area)} · ${t("demoPlace")}</div>
+    <h2 style="font-size:19px;margin:2px 0">${esc(tx(m.name))}</h2>
+    <div class="muted" style="color:var(--ink-2)">${esc(tx(m.desc))}</div>
+    ${statusBox(j)}${groups}
+    <div class="sect">${t("evidence")}</div>${evidenceCards(m)}
+    <div class="stack"><button class="btn" data-korean="${m.id}">${t("showKorean")}</button><button class="btn ghost" data-report="${m.id}">${t("report")}</button></div>`;
 }
 
-function viewSaved(){
-  renderTop();renderTabs("saved");
-  const items=state.saved.filter(id=>MENUS[id]).map(id=>{const m=MENUS[id];const j=judgeMenu(m);const p=PLACES.find(x=>x.id===m.place);
-    return `<a class="card menu-row" href="#/menu/${id}"><div class="thumb">${m.emoji}</div><div style="flex:1;min-width:0"><div style="font-weight:700">${esc(tx(m.name))}</div><div class="muted">${esc(tx(p.name))}</div><div class="counts"><span class="badge ${j.s}">${ST_ICON[j.s]} ${t("st_"+j.s)}</span></div></div><span class="chev">›</span></a>`;}).join("");
-  const reps=state.reports.slice().reverse().map(r=>{const m=MENUS[r.menu];return `<div class="card report"><b>${m?esc(tx(m.name)):""}</b> · <span class="badge check">${t("underReview")}</span><div class="muted">${esc(r.date)} · ${t(r.type)}</div>${r.text?`<div>${esc(r.text)}</div>`:""}</div>`;}).join("");
-  setView(`<h1>${t("savedTitle")}</h1>
-    <div class="list">${items||`<div class="card empty"><div class="big">☆</div><p class="muted">${t("savedEmpty")}</p></div>`}</div>
-    ${reps?`<h2>${t("myReports")}</h2><div class="list" style="margin-top:0">${reps}</div>`:""}`);
+// =========================================================
+// Operations tab
+// =========================================================
+function renderOps(){
+  const menus=Object.values(MENUS);
+  const comps=menus.flatMap(m=>m.comps.map(c=>({m,c})));
+  const usedProducts=[...new Set(comps.filter(x=>x.c.product).map(x=>x.c.product))];
+  const pendingItems=comps.filter(x=>x.c.unknown||x.c.rest!=="confirmed");
+  const flagIds=flagged();
+  const reviewReports=state.reports.filter(r=>r.status==="review");
+  const identified=comps.filter(x=>!x.c.unknown).length;
+  const confirmed=comps.filter(x=>x.c.rest==="confirmed"&&!x.c.unknown).length;
+
+  const ex=state.opsDiet==="current"?state.excluded:DIETS[state.opsDiet];
+  const byPlace=PLACES.map(p=>{const c={ok:0,check:0,contains:0};placeMenus(p.id).forEach(m=>c[judgeMenu(m,ex).s]++);return{p,c,n:placeMenus(p.id).length};});
+  const tot={ok:0,check:0,contains:0};byPlace.forEach(x=>{tot.ok+=x.c.ok;tot.check+=x.c.check;tot.contains+=x.c.contains;});
+  const maxT=Math.max(...TOURISTS.map(x=>x.v));
+
+  const queue=[...pendingItems.map(({m,c})=>({m,item:tx(c.name),reason:c.unknown?"rUnknown":"rPending",next:c.unknown?"nUnknown":"nPending"})),
+               ...flagIds.filter(id=>MENUS[id]).map(id=>({m:MENUS[id],item:"—",reason:"rFlag",next:"nFlag"}))];
+
+  $("main").innerHTML=`
+    <div class="kpis">
+      ${kpi(t("kPlaces"),PLACES.length,GOAL.places)}
+      ${kpi(t("kMenus"),menus.length,GOAL.menus)}
+      <div class="card kpi"><div class="k">${t("kProducts")}</div><div class="v">${usedProducts.length}</div><div class="muted">${t("operator")}</div></div>
+      <div class="card kpi warn"><div class="k">${t("kPending")}</div><div class="v">${queue.length}</div><div class="muted">${t("rUnknown")} · ${t("rPending")}</div></div>
+      <div class="card kpi ${reviewReports.length?"warn":""}"><div class="k">${t("kReports")}</div><div class="v">${reviewReports.length}</div><div class="muted">${t("reports")}</div></div>
+    </div>
+
+    <div class="ogrid">
+      <div class="card pad full">
+        <div class="ctitle">${t("pipeline")} <small>${t("pipeSub")}</small></div>
+        <div class="flow">
+          ${step(comps.length,t("p1"))}${step(identified,t("p2"))}${step(identified,t("p3"))}${step(confirmed,t("p4"))}
+        </div>
+      </div>
+
+      <div class="card pad">
+        <div class="ctitle">${t("judge")}
+          <div class="seg">${["current","vegan","lacto","pesco"].map(d=>`<button data-opsdiet="${d}" aria-pressed="${state.opsDiet===d}">${d==="current"?t("current"):t(d)}</button>`).join("")}</div>
+        </div>
+        ${byPlace.map(({p,c,n})=>`<div class="srow"><span>${esc(tx(p.name))}</span>
+          <div class="sbar" role="img" aria-label="${c.ok} ${t("st_ok")}, ${c.check} ${t("st_check")}, ${c.contains} ${t("st_contains")}">
+            ${["ok","check","contains"].map(s=>c[s]?`<i class="${s}" style="width:${c[s]/n*100}%" title="${t("st_"+s)} ${c[s]}"></i>`:"").join("")}</div>
+          <span class="muted">${c.ok} / ${c.check} / ${c.contains}</span></div>`).join("")}
+        <div class="legend" style="margin-top:12px">
+          <span style="--c:var(--green)">${t("st_ok")} ${tot.ok}</span><span style="--c:var(--amber-bar)">${t("st_check")} ${tot.check}</span><span style="--c:var(--red-bar)">${t("st_contains")} ${tot.contains}</span>
+        </div>
+      </div>
+
+      <div class="card pad">
+        <div class="ctitle">${t("tourists")} <small>${t("touristsUnit")}</small></div>
+        <div class="vbars" role="img" aria-label="${TOURISTS.map(x=>x.y+": "+x.v).join(", ")}">
+          ${TOURISTS.map(x=>`<div class="vb"><b>${x.v}</b><i style="height:${x.v/maxT*82}%"></i></div>`).join("")}
+        </div>
+        <div class="vlabels">${TOURISTS.map(x=>`<span>${x.y}</span>`).join("")}</div>
+        <p class="muted" style="margin:10px 0 0">${t("touristsSrc")}</p>
+      </div>
+
+      <div class="card pad">
+        <div class="ctitle">${t("queue")} <small>${queue.length}</small></div>
+        <div class="tbl-wrap"><table><thead><tr><th>${t("colMenu")}</th><th>${t("qItem")}</th><th>${t("qReason")}</th><th>${t("qNext")}</th></tr></thead><tbody>
+        ${queue.map(q=>`<tr><td><b>${esc(tx(q.m.name))}</b><div class="muted">${esc(tx(placeOf(q.m.place).name))}</div></td><td>${esc(q.item)}</td>
+          <td><span class="badge check">${t(q.reason)}</span></td><td class="muted" style="color:var(--ink-2)">${t(q.next)}</td></tr>`).join("")}
+        </tbody></table></div>
+      </div>
+
+      <div class="card pad">
+        <div class="ctitle">${t("products")} <small>${usedProducts.length}</small></div>
+        <div class="tbl-wrap"><table><thead><tr><th>${t("pName")}</th><th>${t("country")}</th><th>${t("pAnimal")}</th><th>${t("labelChecked")}</th><th>${t("pUsed")}</th></tr></thead><tbody>
+        ${Object.entries(PRODUCTS).map(([k,pr])=>{const used=comps.filter(x=>x.c.product===k).length;
+          return `<tr><td><b>${esc(pr.name)}</b><div class="muted">${esc(pr.brand)}</div></td><td>${pr.country}</td>
+          <td>${pr.contains.length?`<span class="badge contains">${esc(catNames(pr.contains))}</span>`:`<span class="badge gray">${t("none")}</span>`}</td>
+          <td style="white-space:nowrap">${pr.checked}</td><td>${used}</td></tr>`;}).join("")}
+        </tbody></table></div>
+      </div>
+
+      <div class="card pad full">
+        <div class="ctitle">${t("reports")} <small>${state.reports.length}</small></div>
+        ${state.reports.length?`<div class="tbl-wrap"><table><thead><tr><th>${t("rDate")}</th><th>${t("colMenu")}</th><th>${t("rType")}</th><th>${t("rText")}</th><th>${t("rStatus")}</th><th></th></tr></thead><tbody>
+        ${state.reports.slice().reverse().map(r=>{const m=MENUS[r.menu];const st={review:["review","sReview"],flagged:["check","sFlagged"],rejected:["gray","sRejected"]}[r.status];
+          return `<tr><td style="white-space:nowrap">${esc(r.date)}</td><td><b>${m?esc(tx(m.name)):"—"}</b></td><td>${t(r.type)}</td><td>${r.text?esc(r.text):"—"}</td>
+          <td><span class="badge ${st[0]}">${t(st[1])}</span></td>
+          <td style="white-space:nowrap">${r.status==="review"?`<button class="btn sm" data-flag="${r.id}">${t("aFlag")}</button> <button class="btn sm ghost" data-reject="${r.id}">${t("aReject")}</button>`:""}</td></tr>`;}).join("")}
+        </tbody></table></div>`:`<div class="empty">${t("noReports")}</div>`}
+      </div>
+    </div>
+    <p class="foot">${t("foot")}</p>`;
 }
-function viewNotFound(){renderTop("#/explore");renderTabs("");setView(`<div class="empty"><div class="big">🍃</div><p>${t("notFound")}</p><a class="btn" href="#/explore">${t("explore")}</a></div>`);}
+function kpi(label,v,goal){return `<div class="card kpi"><div class="k">${label}</div><div class="v">${v} <small>/ ${goal}</small></div><div class="prog"><i style="width:${Math.min(100,v/goal*100)}%"></i></div><div class="muted" style="margin-top:4px">${t("goal")} ${goal}</div></div>`;}
+function step(n,label){return `<div class="step"><div class="n">${n}</div><div class="s">${label}</div></div>`;}
 
 // ---------- modal ----------
-function openModal(html){document.getElementById("sheet").innerHTML=html;document.getElementById("modal").classList.add("open");const f=document.querySelector("#sheet button, #sheet select");if(f)f.focus();}
-function closeModal(){document.getElementById("modal").classList.remove("open");}
+function openModal(html){$("sheet").innerHTML=html;$("modal").classList.add("open");const f=document.querySelector("#sheet button,#sheet select");if(f)f.focus();}
+function closeModal(){$("modal").classList.remove("open");}
 function koreanRequest(id){
   const m=MENUS[id];
   const ex=state.excluded.map(c=>CAT[c].ko).join(", ");
   const exEn=state.excluded.map(c=>CAT[c].en.toLowerCase()).join(", ");
   const pend=m.comps.filter(c=>c.rest!=="confirmed"||c.unknown);
-  const partsKo=pend.map(c=>c.name.ko).join(", ");
-  const partsEn=pend.map(c=>c.name.en.toLowerCase()).join(", ");
-  const ko=`안녕하세요. 저는 ${ex}${josa(ex,"을","를")} 먹지 않아요.<br>'${esc(m.name.ko)}'의 ${pend.length?esc(partsKo)+"에":"재료나 양념에"} 이 재료가 들어가는지 확인해 주실 수 있을까요?<br>감사합니다.`;
-  const en=`Hello. I don't eat ${exEn}. Could you check whether the ${pend.length?esc(partsEn)+" of":"ingredients or sauces in"} '${esc(m.name.en)}' contain any of these? Thank you.`;
-  openModal(`<h2>${t("koReqTitle")}</h2><div class="ko-req" lang="ko">${ko}</div>
-    <p class="muted" style="margin-top:12px"><b>${t("koReqSub")}</b> ${en}</p>
+  const ko=`안녕하세요. 저는 ${ex}${josa(ex,"을","를")} 먹지 않아요.<br>'${esc(m.name.ko)}'의 ${pend.length?esc(pend.map(c=>c.name.ko).join(", "))+"에":"재료나 양념에"} 이 재료가 들어가는지 확인해 주실 수 있을까요?<br>감사합니다.`;
+  const en=`Hello. I don't eat ${exEn}. Could you check whether the ${pend.length?esc(pend.map(c=>c.name.en.toLowerCase()).join(", "))+" of":"ingredients or sauces in"} '${esc(m.name.en)}' contain any of these? Thank you.`;
+  openModal(`<h2>${t("koReqTitle")}</h2><div class="ko-req" lang="ko">${ko}</div><p class="muted" style="margin-top:12px"><b>${t("koReqSub")}</b> ${en}</p>
     <div class="stack"><button class="btn ghost" data-close>${t("close")}</button></div>`);
 }
 function reportForm(id){
-  openModal(`<h2>${t("reportTitle")}</h2><p class="sub">${t("reportSub")}</p>
-    <form id="rf">
-      <div class="field"><label for="rtype">${t("reportType")}</label>
-        <select id="rtype">${["rt1","rt2","rt3"].map(k=>`<option value="${k}">${t(k)}</option>`).join("")}</select></div>
-      <div class="field"><label for="rtext">${t("details")}</label><textarea id="rtext" maxlength="500"></textarea></div>
-      <div class="stack"><button class="btn" type="submit">${t("submit")}</button><button class="btn ghost" type="button" data-close>${t("close")}</button></div>
-    </form>`);
-  document.getElementById("rf").addEventListener("submit",e=>{
-    e.preventDefault();
-    state.reports.push({menu:id,type:document.getElementById("rtype").value,text:document.getElementById("rtext").value.trim(),date:new Date().toISOString().slice(0,10),status:"review"});
-    persist();closeModal();toast(t("reportDone"));
-  });
+  openModal(`<h2>${t("report")} · ${esc(tx(MENUS[id].name))}</h2><p class="muted" style="color:var(--ink-2)">${t("reportSub")}</p>
+    <form id="rf"><div class="field"><label for="rtype">${t("reportType")}</label><select id="rtype">${["rt1","rt2","rt3"].map(k=>`<option value="${k}">${t(k)}</option>`).join("")}</select></div>
+    <div class="field"><label for="rtext">${t("details")}</label><textarea id="rtext" maxlength="500"></textarea></div>
+    <div class="stack"><button class="btn" type="submit">${t("submit")}</button><button class="btn ghost" type="button" data-close>${t("close")}</button></div></form>`);
+  $("rf").addEventListener("submit",e=>{e.preventDefault();
+    state.reports.push({id:"r"+Date.now(),menu:id,type:$("rtype").value,text:$("rtext").value.trim(),date:new Date().toISOString().slice(0,10),status:"review"});
+    persist();closeModal();toast(t("reportDone"));});
 }
-function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2200);}
+function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2200);}
 
 // ---------- events ----------
+function selectMenu(id){state.sel=id;persist();renderList();renderRight();
+  if(window.innerWidth<=1200){const r=$("right");if(r)r.scrollIntoView({behavior:"smooth",block:"start"});}}
 document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-lang],[data-diet],[data-cat],[data-area],[data-save],[data-korean],[data-report],[data-close],[data-back],[data-block]");
+  const b=e.target.closest("[data-tab],[data-lang],[data-diet],[data-cat],[data-area],[data-show],[data-menu],[data-clearplace],[data-save],[data-korean],[data-report],[data-close],[data-opsdiet],[data-flag],[data-reject]");
   if(!b){if(e.target.id==="modal")closeModal();return;}
   const d=b.dataset;
-  if(d.block){e.preventDefault();toast(t("noneSel"));return;}
-  if(d.lang){state.lang=d.lang;document.documentElement.lang=d.lang;persist();route();}
-  else if(d.diet){state.diet=d.diet;if(DIETS[d.diet])state.excluded=[...DIETS[d.diet]];persist();viewSetup();}
+  if(d.tab){state.tab=d.tab;persist();render();}
+  else if(d.lang){state.lang=d.lang;persist();render();}
+  else if(d.diet){state.diet=d.diet;if(DIETS[d.diet])state.excluded=[...DIETS[d.diet]];persist();renderLeft();renderList();renderMarkers();renderRight();}
   else if(d.cat){const c=d.cat;state.excluded=state.excluded.includes(c)?state.excluded.filter(x=>x!==c):[...state.excluded,c];
     state.excluded=CATS.filter(x=>state.excluded.includes(x));
-    const match=Object.keys(DIETS).find(k=>DIETS[k].length===state.excluded.length&&DIETS[k].every(x=>state.excluded.includes(x)));
-    state.diet=match||"custom";persist();viewSetup();}
-  else if(d.area){state.area=d.area;persist();viewExplore();}
-  else if(d.save){const id=d.save;const on=state.saved.includes(id);state.saved=on?state.saved.filter(x=>x!==id):[...state.saved,id];persist();toast(on?t("unsavedToast"):t("savedToast"));viewMenu(id);}
+    state.diet=Object.keys(DIETS).find(k=>DIETS[k].length===state.excluded.length&&DIETS[k].every(x=>state.excluded.includes(x)))||"custom";
+    persist();renderLeft();renderList();renderMarkers();renderRight();}
+  else if(d.area){state.area=d.area;state.place=null;persist();renderLeft();fitArea();renderList();renderMarkers();}
+  else if(d.show){state.show[d.show]=!state.show[d.show];persist();renderList();}
+  else if(d.menu)selectMenu(d.menu);
+  else if(d.clearplace!==undefined){state.place=null;persist();renderList();renderMarkers();}
+  else if(d.save){const on=state.saved.includes(d.save);state.saved=on?state.saved.filter(x=>x!==d.save):[...state.saved,d.save];persist();toast(on?t("unsavedToast"):t("savedToast"));renderRight();}
   else if(d.korean)koreanRequest(d.korean);
   else if(d.report)reportForm(d.report);
   else if(d.close!==undefined)closeModal();
-  else if(d.back){location.hash=d.back;}
+  else if(d.opsdiet){state.opsDiet=d.opsdiet;persist();renderOps();}
+  else if(d.flag||d.reject){const r=state.reports.find(x=>x.id===(d.flag||d.reject));if(r){r.status=d.flag?"flagged":"rejected";persist();toast(t(d.flag?"flagToast":"rejToast"));renderOps();}}
 });
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape")closeModal();
+  if(e.key==="Enter"){const tr=e.target.closest&&e.target.closest("[data-menu]");if(tr)selectMenu(tr.dataset.menu);}
+});
 
-// ---------- router ----------
-const L_=window.L;
-function route(){
-  closeModal();
-  const h=location.hash.replace(/^#\/?/,"");const [page,id]=h.split("/");
-  if(page!=="explore")killMap();
-  document.documentElement.lang=lg();
-  if(!page)return location.replace(state.excluded.length&&localStorageHas()?"#/explore":"#/setup");
-  ({setup:viewSetup,explore:viewExplore,place:()=>viewPlace(id),menu:()=>viewMenu(id),evidence:()=>viewEvidence(id),saved:viewSaved}[page]||viewNotFound)();
-}
-function localStorageHas(){try{return !!localStorage.getItem(STORE_KEY);}catch(e){return false;}}
-window.addEventListener("hashchange",route);
-route();
+render();
 </script>
 </body>
 </html>
